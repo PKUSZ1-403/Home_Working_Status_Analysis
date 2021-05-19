@@ -2,4 +2,4 @@
 *.png
 *.gif
 *.jpeg
-!imgs/
+!imgs/default.jpg
