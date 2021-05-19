@@ -6,14 +6,14 @@ import argparse
 # command argument parser
 parser = argparse.ArgumentParser()
 parser.add_argument("-r", "--rate", type=int, default=20, help="Video frame sample rate")
-parser.parse_args()
+args = parser.parse_args()
 
 # logger configuration
 LOG_FORMAT = "%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
 logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 # sample rate
-FRAME_RATE = parser.rate
+FRAME_RATE = args.rate
 
 # Basic data info
 LABELS = ['Sleeping', 'Dazing', 'Playing Phone', 'Reading Book', 'Working On Computer']
