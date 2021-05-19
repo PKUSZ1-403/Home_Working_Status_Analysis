@@ -3,3 +3,5 @@
 *.gif
 *.jpeg
 !imgs/default.jpg
+
+video/
