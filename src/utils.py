@@ -18,17 +18,12 @@ class CiWork5(Dataset):
 		self.root_dir = root_dir
 		self.resize = resize
 
-		self.images, self.labels = self.load_csv('labels.csv')
-
-		if mode == 'train': # 70% = 0% -> 70%
-			self.images = self.images[:int(0.7 * len(self.images))]
-			self.labels = self.labels[:int(0.7 * len(self.labels))]
-		elif mode == 'val': # 10% = 70% -> 80%
-			self.images = self.images[int(0.7 * len(self.images)):int(0.8 * len(self.images))]
-			self.labels = self.labels[int(0.7 * len(self.labels)):int(0.8 * len(self.images))]
-		elif mode == 'test': # 20% = 80% -> 100%
-			self.images = self.images[int(0.8 * len(self.images)):]
-			self.labels = self.labels[int(0.8 * len(self.labels)):]
+		if mode == 'train':
+			self.images, self.labels = self.load_csv('train.csv')
+		elif mode == 'val':
+			self.images, self.labels = self.load_csv('eval.csv')
+		elif mode == 'test':
+			self.images, self.labels = self.load_csv('test.csv')
 
 
 	def load_csv(self, file):
