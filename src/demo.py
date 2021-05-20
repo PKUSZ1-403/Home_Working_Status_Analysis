@@ -15,9 +15,8 @@ img_size = 256
 
 transform = transforms.Compose([
 	lambda x : Image.open(x).convert('RGB'),
-	transforms.Resize((int(img_size * 1.0), int(img_size * 1.0))),
-	transforms.RandomRotation(15),
-	transforms.CenterCrop(img_size),
+	transforms.Resize(256),
+	transforms.CenterCrop(224),
 	transforms.ToTensor(),
 	transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
@@ -74,6 +73,8 @@ class MainWindow(Frame):
 
 		# Show Image
 		image = Image.open(selectImg)
+		rawImg = image # store raw image
+
 		img = image.resize((300, 300))
 		render = ImageTk.PhotoImage(img)
 
@@ -82,7 +83,7 @@ class MainWindow(Frame):
 		self.image.place(x=150, y=30, height=300, width=300)
 
 		# Change State
-		self.state_label, self.score = predict(self.model, image)
+		self.state_label, self.score = predict(self.model, rawImg)
 		self.state['text'] = CiWork5[self.state_label] + ' (' + str(self.score) + ')'
 		if self.state_label <= 2:
 			self.state['fg'] = 'red'
