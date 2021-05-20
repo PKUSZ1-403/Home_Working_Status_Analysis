@@ -39,4 +39,4 @@ python src/demo.py \
 	--device [demo run gpu device id] --cuda [run with cuda]
 ```
 
-![img](./imgs/1.png)
+![img](./imgs/1.jpg)

@@ -3,8 +3,8 @@
 *.gif
 *.jpeg
 
-!imgs/default.jpg
-!imgs/1.png
+!imgs/*.jpg
+!imgs/*.png
 
 video/
-src/__pycache__
+src/__pycache__/
