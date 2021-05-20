@@ -2,6 +2,9 @@
 *.png
 *.gif
 *.jpeg
+
 !imgs/default.jpg
+!imgs/1.png
 
 video/
+src/__pycache__
