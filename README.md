@@ -18,7 +18,7 @@ python split_train_test.py
 
 ## Train & Test
 
-Simply run `src/train.py`, then you can train the home working status analysis model with 1750 images, and evaluate it with 250 images, finally testing best trained model with 500 images. ( train : eval : test = 7 : 1 : 2 )
+Simply run `src/train.py`, then you can train the home working status analysis model with 700 images, and evaluate it with 100 images, finally testing best trained model with 500 images. ( train : eval : test = 7 : 1 : 5 )
 
 ```bash
 python src/train.py \
