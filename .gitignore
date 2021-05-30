@@ -2,9 +2,16 @@
 *.png
 *.gif
 *.jpeg
+*.csv
 
 !imgs/*.jpg
 !imgs/*.png
 
 video/
 src/__pycache__/
+
+checkpoints/
+checkpoints/best_model_path
+checkpoints/last_model_path
+
+dataset/

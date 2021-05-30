@@ -19,7 +19,7 @@ def init_model(opt):
 
 def get_acc(y_pred, y):
 	_, preds = y_pred.max(1)
-	acc = torch.eq(preds, y.view_as(preds)).float().sum()
+	acc = torch.eq(preds, y.view_as(preds)).float().mean()
 
 	return acc.item()
 
@@ -53,17 +53,17 @@ def train(opt, trn_dataloader, val_dataloader, model, optim):
 			loss.backward()
 			optim.step()
 
-			train_loss.append(loss.item())
-			train_acc.append(get_acc(y_pred, y))
-		avg_loss = np.mean(train_loss[-opt.iterations:])
-		avg_acc = np.mean(train_acc[-opt.iterations:])
+			trn_loss.append(loss.item())
+			trn_acc.append(get_acc(y_pred, y))
+		avg_loss = np.mean(trn_loss)
+		avg_acc = np.mean(trn_acc)
 		print('Avg Train Loss: {}, Avg Train Acc: {}'.format(avg_loss, avg_acc))
 
 		# Model validation
 		val_iter = iter(val_dataloader)
 		model.eval()
 
-		for batch in val_iter:
+		for batch in tqdm(val_iter):
 			x, y = batch
 			x, y = x.to(opt.device), y.to(opt.device)
 
@@ -73,8 +73,8 @@ def train(opt, trn_dataloader, val_dataloader, model, optim):
 
 			val_loss.append(loss.item())
 			val_acc.append(get_acc(y_pred, y))
-		avg_loss = np.mean(val_loss[-opt.iterations:])
-		avg_acc = np.mean(val_acc[-opt.iterations:])
+		avg_loss = np.mean(val_loss)
+		avg_acc = np.mean(val_acc)
 		postfix = ' (Best)' if avg_acc >= best_acc else ' (Best: {})'.format(best_acc)
 
 		print('Avg Val Loss: {}, Avg Val Acc: {}{}'.format(avg_loss, avg_acc, postfix))
@@ -100,7 +100,7 @@ def test(opt, tst_dataloader, model):
 		tst_iter = iter(tst_dataloader)
 		model.eval()
 
-		for batch in tst_iter:
+		for batch in tqdm(tst_iter):
 			x, y = batch
 			x, y = x.to(opt.device), y.to(opt.device)
 
@@ -122,9 +122,8 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--ckpt_dir', type=str, default='checkpoints/')
 	parser.add_argument('--epochs', type=int, default=200)
-	parser.add_argument('--iterations', type=int, default=100)
-	parser.add_argument('--batch_size', type=int, default=128)
-	parser.add_argument('--lr', type=float, default=0.0001)
+	parser.add_argument('--batch_size', type=int, default=64)
+	parser.add_argument('--lr', type=float, default=0.001)
 	parser.add_argument('--cuda', action='store_true')
 	parser.add_argument('--device', type=int, default=0)
 
@@ -134,24 +133,31 @@ def main():
 		print("WARNING: You have a CUDA device, so you should probably run with --cuda")
 
 	# Load dataset
+	print('========== Start Loading Dataset ==========')
 	trn_dataloader, val_dataloader, tst_dataloader = init_dataset(options)
+	print('========== End Loading Dataset ==========')
 	# Init model and optim
 	model = init_model(options)
 	optim = Adam(params=model.parameters(), lr=options.lr)
+	'''
 	# Train model
 	train(opt=options,
 		  trn_dataloader=trn_dataloader,
 		  val_dataloader=val_dataloader, 
 		  model=model,
 		  optim=optim)
+	'''
 	# Test model with checkpoints
+	last_model_path = os.path.join(options.ckpt_dir, 'last_model_path')
+	last_state = torch.load(last_model_path)
+	model.load_state_dict(last_state)
 	print('Testing with last model...')
 	test(opt=options,
 		 tst_dataloader=tst_dataloader,
 		 model=model)
 
 	print('Testing with best model...')
-	best_model_path = os.path.join(opt.ckpt_dir, 'best_model_path')
+	best_model_path = os.path.join(options.ckpt_dir, 'best_model_path')
 	best_state = torch.load(best_model_path)
 	model.load_state_dict(best_state)
 	test(opt=options,
