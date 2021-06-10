@@ -43,10 +43,10 @@ def train(opt, trn_dataloader, val_dataloader, model, optim):
 
 		for batch in tqdm(trn_iter):
 			optim.zero_grad()
-			x, y = batch
-			x, y = x.to(opt.device), y.to(opt.device)
+			x_a, x_p, x_o, x_c, y = batch
+			x_a, x_p, y = x_a.to(opt.device), x_p.to(opt.device), y.to(opt.device)
 
-			y_pred = model(x)
+			y_pred = model(x_a, x_p, x_o, x_c)
 
 			loss = loss_fn(y_pred, y)
 
@@ -64,10 +64,10 @@ def train(opt, trn_dataloader, val_dataloader, model, optim):
 		model.eval()
 
 		for batch in tqdm(val_iter):
-			x, y = batch
-			x, y = x.to(opt.device), y.to(opt.device)
+			x_a, x_p, x_o, x_c, y = batch
+			x_a, x_p, y = x_a.to(opt.device), x_p.to(opt.device), y.to(opt.device)
 
-			y_pred = model(x)
+			y_pred = model(x_a, x_p, x_o, x_c)
 
 			loss = loss_fn(y_pred, y)
 
@@ -77,7 +77,7 @@ def train(opt, trn_dataloader, val_dataloader, model, optim):
 		avg_acc = np.mean(val_acc)
 		postfix = ' (Best)' if avg_acc >= best_acc else ' (Best: {})'.format(best_acc)
 
-		print('Avg Val Loss: {}, Avg Val Acc: {}{}'.format(avg_loss, avg_acc, postfix))
+		print('Avg Val Acc: {}{}'.format(avg_acc, postfix))
 
 		# Save model with best validation accuracy
 		if avg_acc >= best_acc:
@@ -101,10 +101,10 @@ def test(opt, tst_dataloader, model):
 		model.eval()
 
 		for batch in tqdm(tst_iter):
-			x, y = batch
-			x, y = x.to(opt.device), y.to(opt.device)
+			x_a, x_p, x_o, x_c, y = batch
+			x_a, x_p, y = x_a.to(opt.device), x_p.to(opt.device), y.to(opt.device)
 
-			y_pred = model(x)
+			y_pred = model(x_a, x_p, x_o, x_c)
 
 			avg_acc.append(get_acc(y_pred, y))
 	avg_acc = np.mean(avg_acc)
@@ -121,9 +121,9 @@ def main():
 	'''
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--ckpt_dir', type=str, default='checkpoints/')
-	parser.add_argument('--epochs', type=int, default=200)
+	parser.add_argument('--epochs', type=int, default=50)
 	parser.add_argument('--batch_size', type=int, default=64)
-	parser.add_argument('--lr', type=float, default=0.001)
+	parser.add_argument('--lr', type=float, default=1e-4)
 	parser.add_argument('--cuda', action='store_true')
 	parser.add_argument('--device', type=int, default=0)
 
@@ -139,14 +139,13 @@ def main():
 	# Init model and optim
 	model = init_model(options)
 	optim = Adam(params=model.parameters(), lr=options.lr)
-	'''
 	# Train model
+	
 	train(opt=options,
 		  trn_dataloader=trn_dataloader,
 		  val_dataloader=val_dataloader, 
 		  model=model,
 		  optim=optim)
-	'''
 	# Test model with checkpoints
 	last_model_path = os.path.join(options.ckpt_dir, 'last_model_path')
 	last_state = torch.load(last_model_path)

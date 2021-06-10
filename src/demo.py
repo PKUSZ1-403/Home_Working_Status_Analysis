@@ -1,4 +1,5 @@
 import os
+import cv2
 import argparse
 
 import torch
@@ -11,56 +12,42 @@ from PIL import Image, ImageTk
 from model import WorkStateClsModel as Model
 
 
-img_size = 256
-
 transform = transforms.Compose([
-	lambda x : Image.open(x).convert('RGB'),
-	transforms.Resize(256),
-	transforms.CenterCrop(224),
+	transforms.Resize(128),
+	transforms.CenterCrop(128),
 	transforms.ToTensor(),
 	transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 CiWork5 = ['Sleeping', 'Dazing', 'Playing Phone', 'Reading Book', 'Working On Computer']
 
-def predict(model, image):
-	return 0, 1.0
-	image = transform(image)
-
-	pred = model(image)
-	label = pred.argmax().item()
-	score = pred.max().item()
-
-	return label, score
-
 
 class MainWindow(Frame):
-	def __init__(self, master):
+	def __init__(self, master, model):
 		Frame.__init__(self, master)
 		self.master = master
+		self.model = model.cuda()
 
-		# self.model = load_model(options)
-		self.model = None
 		self.state_label = ''
 		self.score = 0.0
 
 		self.btn = Button(self, text='Upload Image', fg='black', bg='gray', command=self.pressUpload)
-		self.btn.place(x=240, y=420, height=40, width=100)
+		self.btn.place(x=380, y=650, height=40, width=150)
 
-		self.label = Label(self, text="Current Image's Working State is:", font=('Times New Roman', 14, 'bold'))
-		self.label.place(x=30, y=340, height=50, width=280)
+		self.label = Label(self, text="Current Image's Working State :", font=('Times New Roman', 18, 'bold'))
+		self.label.place(x=100, y=500, height=100, width=350)
 
-		self.state = Label(self, text="__________________", font=('Times New Roman', 14, 'bold'))
-		self.state.place(x=330, y=340, height=50, width=230)
+		self.state = Label(self, text="__________________", font=('Times New Roman', 18, 'bold'))
+		self.state.place(x=460, y=500, height=100, width=400)
 
-		self.hint = Label(self, text="", font=('Times New Roman', 12, 'bold'))
-		self.hint.place(x=150, y=380, height=30, width=300)
+		self.hint = Label(self, text="", font=('Times New Roman', 15, 'bold'))
+		self.hint.place(x=210, y=580, height=50, width=500)
 
-		default_img = Image.open('imgs/default.jpg').resize((300, 300))
+		default_img = Image.open('imgs/default.jpg').resize((450, 450))
 		render = ImageTk.PhotoImage(default_img)
 		self.image = Label(self, image=render)
 		self.image.image = render
-		self.image.place(x=150, y=30, height=300, width=300)
+		self.image.place(x=230, y=30, height=450, width=450)
 
 		self.pack(fill=BOTH, expand=1)
 
@@ -72,19 +59,19 @@ class MainWindow(Frame):
 			return
 
 		# Show Image
-		image = Image.open(selectImg)
+		image = Image.open(selectImg).convert('RGB')
 		rawImg = image # store raw image
 
-		img = image.resize((300, 300))
+		img = image.resize((450, 450))
 		render = ImageTk.PhotoImage(img)
 
 		self.image = Label(self, image=render)
 		self.image.image = render
-		self.image.place(x=150, y=30, height=300, width=300)
+		self.image.place(x=230, y=30, height=450, width=450)
 
 		# Change State
-		self.state_label, self.score = predict(self.model, rawImg)
-		self.state['text'] = CiWork5[self.state_label] + ' (' + str(self.score) + ')'
+		self.state_label, self.score = self.predict(rawImg)
+		self.state['text'] = CiWork5[self.state_label] + ' (' + str(self.score)[:5] + ')'
 		if self.state_label <= 2:
 			self.state['fg'] = 'red'
 			self.hint['fg'] = 'red'
@@ -94,6 +81,21 @@ class MainWindow(Frame):
 			self.hint['fg'] = 'green'
 			self.hint['text'] = "Focus on working...."
 
+	def predict(self, image):
+		image = transform(image)
+
+		self.model.eval()
+		image = image.cuda()
+
+		image = image.unsqueeze(0)
+
+		pred = self.model(image, image)
+		label = pred.argmax().item()
+
+		prob = pred.max().item() / pred.sum().item()
+
+		return label, prob
+
 
 def init_model(opt):
 	model = Model()
@@ -102,13 +104,42 @@ def init_model(opt):
 
 
 def load_model(opt):
-	best_model_path = os.path.join(opt.ckpt_dir, 'best_model')
+	best_model_path = os.path.join(opt.ckpt_dir, 'best_model_path')
 	best_model_state = torch.load(best_model_path)
 
 	model = init_model(opt)
 	model.load_state_dict(best_model_state)
 
 	return model
+
+
+def demo(window):
+	# Run all test images demo
+	ddir = './data/dataset/train'
+	names = os.listdir(ddir)
+
+	correct = [0, 0, 0, 0, 0]
+	total = [0, 0, 0, 0, 0]
+
+	ddict = {'Sleeping':0, 'Dazing':1, 'Playing Phone':2, 'Reading Book':3, 'Working On Computer':4}
+
+	for name in names:
+		if name.split('.')[0] == 'train': continue
+		image = Image.open(ddir + '/' + name).convert('RGB')
+		label, _ = window.predict(image)
+		gt_label = ddict[name.split('_')[0]]
+		if name.split('_')[0] == CiWork5[label]:
+			correct[label] += 1
+		else:
+			print(name + '    ' + CiWork5[label])
+		total[gt_label] += 1
+	
+	print(correct)
+	print(total)
+	print(CiWork5)
+
+	for i in range(5):
+		print(correct[i] / total[i])
 
 
 def main():
@@ -118,12 +149,15 @@ def main():
 	parser.add_argument('--device', type=int, default=0)
 
 	options = parser.parse_args()
+	model = load_model(options)
 
 	# Python tkinter GUI
 	root = Tk()
-	root.geometry("600x500")
+	root.geometry("900x750") # 600x500
 	root.title('Home Working State Detection')
-	window = MainWindow(root)
+	window = MainWindow(root, model=model)
+
+	#demo(window)
 
 	root.mainloop()
 

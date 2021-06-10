@@ -1,17 +1,26 @@
 *.jpg
 *.png
+*.pth
 *.gif
 *.jpeg
 *.csv
+*.pptx
+*.ppt
+*.pt
 
 !imgs/*.jpg
 !imgs/*.png
 
 video/
 src/__pycache__/
+src/libs/__pycache__/
 
 checkpoints/
 checkpoints/best_model_path
 checkpoints/last_model_path
 
-dataset/
+data/dataset/
+data/dataset_objects/
+data/dataset_pose/
+data/dataset_shuffle_pose/
+data/dataset_shuffled
