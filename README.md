@@ -16,9 +16,21 @@ python split_train_test.py
 
 
 
+## Model Architecture
+
+`Baseline Methods`
+
+<div align=center><img src="./imgs/2.jpg"></div>
+
+`Improvement Methods`
+
+<div align=center><img src="./imgs/5.jpg"></div>
+
+
+
 ## Train & Test
 
-Simply run `src/train.py`, then you can train the home working status analysis model with 700 images, and evaluate it with 100 images, finally testing best trained model with 500 images. ( train : eval : test = 7 : 1 : 5 )
+Simply run `src/train.py`, then you can train the home working status analysis model with 500 images, and evaluate it with 100 images, finally testing best trained model with 500 images. ( train : eval : test = 5 : 1 : 5 )
 
 ```bash
 python src/train.py \
@@ -40,3 +52,8 @@ python src/demo.py \
 ```
 
 <div align=center><img src="./imgs/1.jpg"></div>
+
+<div align=center><img src="./imgs/3.jpg"></div>
+
+<div align=center><img src="./imgs/4.jpg"></div>
+
