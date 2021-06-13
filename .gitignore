@@ -7,6 +7,9 @@
 *.pptx
 *.ppt
 *.pt
+*.doc
+*.docx
+*.xlsx
 
 !imgs/*.jpg
 !imgs/*.png

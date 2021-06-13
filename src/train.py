@@ -122,7 +122,7 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--ckpt_dir', type=str, default='checkpoints/')
 	parser.add_argument('--epochs', type=int, default=50)
-	parser.add_argument('--batch_size', type=int, default=64)
+	parser.add_argument('--batch_size', type=int, default=36)
 	parser.add_argument('--lr', type=float, default=1e-4)
 	parser.add_argument('--cuda', action='store_true')
 	parser.add_argument('--device', type=int, default=0)

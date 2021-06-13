@@ -38,7 +38,7 @@ class CiWork5(Dataset):
 
 		self.mode = mode
 		self.cls_dim = 128
-		self.max_object_num = 5
+		self.max_object_num = 2
 
 		self.default_obj = torch.tensor(np.zeros((3, self.size, self.size))).float()
 		self.object_dir = './data/dataset_objects/' + self.mode + '/' 
@@ -77,6 +77,7 @@ class CiWork5(Dataset):
 
 
 	def load_obj(self, path):
+		target_labels = [0, 67, 62, 63] # Human, Phone, Computer, Book
 		obj_images, obj_cls = [], []
 
 		name = path.split('\\')[1]
@@ -88,6 +89,8 @@ class CiWork5(Dataset):
 			for name in names:
 				img = Image.open(ddir + '/' + name).convert('RGB')
 				label = int(name.split('.')[0])
+				if label not in target_labels:
+					continue
 				obj_images.append(img)
 				obj_cls.append(torch.tensor(label))
 

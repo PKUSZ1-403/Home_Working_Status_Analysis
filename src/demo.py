@@ -89,7 +89,7 @@ class MainWindow(Frame):
 
 		image = image.unsqueeze(0)
 
-		pred = self.model(image, image)
+		pred = self.model(image)
 		label = pred.argmax().item()
 
 		prob = pred.max().item() / pred.sum().item()
