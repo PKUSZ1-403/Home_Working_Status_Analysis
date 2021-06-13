@@ -20,7 +20,7 @@ python split_train_test.py
 
 `Baseline Methods`
 
-<div align=center><img src="./imgs/2.jpg"></div>
+<div align=center><img src="./imgs/7.jpg"></div>
 
 `Improvement Methods`
 
@@ -51,7 +51,7 @@ python src/demo.py \
 	--device [demo run gpu device id] --cuda [run with cuda]
 ```
 
-<div align=center><img src="./imgs/1.jpg"></div>
+<div align=center><img src="./imgs/6.jpg"></div>
 
 <div align=center><img src="./imgs/3.jpg"></div>
 
